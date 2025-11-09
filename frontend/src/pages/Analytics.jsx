@@ -3,34 +3,31 @@ import { useState, useEffect } from 'react';
 const API_URL = 'http://localhost:8000';
 
 function Analytics() {
-    const [dashboard, setDashboard] = useState(null);
-    const [funnel, setFunnel] = useState(null);
-    const [sources, setSources] = useState(null);
-    const [statusDist, setStatusDist] = useState(null);
-    const [weeklyTrends, setWeeklyTrends] = useState(null);
+    const [dashboardStats, setDashboardStats] = useState(null);
+    const [funnelData, setFunnelData] = useState(null);
+    const [sourceData, setSourceData] = useState(null);
+    const [statusDistribution, setStatusDistribution] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        fetchAllAnalytics();
+        fetchAnalytics();
     }, []);
 
-    const fetchAllAnalytics = async () => {
+    const fetchAnalytics = async () => {
         try {
             setLoading(true);
-            const [dashboardRes, funnelRes, sourcesRes, statusRes, trendsRes] = await Promise.all([
-                fetch(`${API_URL}/analytics/dashboard`),
-                fetch(`${API_URL}/analytics/funnel`),
-                fetch(`${API_URL}/analytics/sources`),
-                fetch(`${API_URL}/analytics/status-distribution`),
-                fetch(`${API_URL}/analytics/weekly-trends`)
+            const [dashboard, funnel, sources, status] = await Promise.all([
+                fetch(`${API_URL}/analytics/dashboard`).then(r => r.json()),
+                fetch(`${API_URL}/analytics/funnel`).then(r => r.json()),
+                fetch(`${API_URL}/analytics/sources`).then(r => r.json()),
+                fetch(`${API_URL}/analytics/status-distribution`).then(r => r.json())
             ]);
 
-            setDashboard(await dashboardRes.json());
-            setFunnel(await funnelRes.json());
-            setSources(await sourcesRes.json());
-            setStatusDist(await statusRes.json());
-            setWeeklyTrends(await trendsRes.json());
+            setDashboardStats(dashboard);
+            setFunnelData(funnel);
+            setSourceData(sources);
+            setStatusDistribution(status);
             setError(null);
         } catch (err) {
             setError('Failed to fetch analytics');
@@ -39,143 +36,217 @@ function Analytics() {
         }
     };
 
-    if (loading) return <div className="text-center py-8">Loading analytics...</div>;
-    if (error) return <div className="text-red-600 text-center py-8">{error}</div>;
+    if (loading) {
+        return (
+            <div className="h-full bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-indigo-500 border-t-transparent"></div>
+                    <p className="mt-4 text-gray-600">Loading analytics...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="h-full bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="text-5xl mb-4">⚠️</div>
+                    <p className="text-red-600 text-lg">{error}</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
-        <div className="px-4 sm:px-6 lg:px-8">
-            <h1 className="text-2xl font-semibold text-gray-900 mb-6">Analytics Dashboard</h1>
-
-            {/* Key Metrics */}
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-                <div className="bg-white overflow-hidden shadow rounded-lg">
-                    <div className="px-4 py-5 sm:p-6">
-                        <dt className="text-sm font-medium text-gray-500 truncate">Total Applications</dt>
-                        <dd className="mt-1 text-3xl font-semibold text-gray-900">{dashboard?.total_applications}</dd>
-                    </div>
-                </div>
-                <div className="bg-white overflow-hidden shadow rounded-lg">
-                    <div className="px-4 py-5 sm:p-6">
-                        <dt className="text-sm font-medium text-gray-500 truncate">Response Rate</dt>
-                        <dd className="mt-1 text-3xl font-semibold text-green-600">{dashboard?.response_rate}%</dd>
-                    </div>
-                </div>
-                <div className="bg-white overflow-hidden shadow rounded-lg">
-                    <div className="px-4 py-5 sm:p-6">
-                        <dt className="text-sm font-medium text-gray-500 truncate">Interview Rate</dt>
-                        <dd className="mt-1 text-3xl font-semibold text-blue-600">{dashboard?.interview_rate}%</dd>
-                    </div>
-                </div>
-                <div className="bg-white overflow-hidden shadow rounded-lg">
-                    <div className="px-4 py-5 sm:p-6">
-                        <dt className="text-sm font-medium text-gray-500 truncate">Offer Rate</dt>
-                        <dd className="mt-1 text-3xl font-semibold text-purple-600">{dashboard?.offer_rate}%</dd>
-                    </div>
+        <div className="h-full bg-gray-50">
+            {/* Header Section */}
+            <div className="bg-white border-b border-gray-200 px-8 py-6">
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Analytics Dashboard</h1>
+                    <p className="text-base text-gray-600">Track your job search performance and insights</p>
                 </div>
             </div>
 
-            {/* Funnel Visualization */}
-            <div className="bg-white shadow rounded-lg p-6 mb-8">
-                <h2 className="text-lg font-medium text-gray-900 mb-4">Application Funnel</h2>
-                <div className="space-y-4">
-                    {funnel?.stages?.map((stage, idx) => (
-                        <div key={idx}>
-                            <div className="flex justify-between text-sm mb-1">
-                                <span className="font-medium">{stage.stage}</span>
-                                <span className="text-gray-600">{stage.count} ({stage.percentage}%)</span>
-                            </div>
-                            <div className="w-full bg-gray-200 rounded-full h-2.5">
-                                <div
-                                    className="bg-indigo-600 h-2.5 rounded-full"
-                                    style={{ width: `${stage.percentage}%` }}
-                                ></div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* Sources & Status Distribution */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                {/* Sources */}
-                <div className="bg-white shadow rounded-lg p-6">
-                    <h2 className="text-lg font-medium text-gray-900 mb-4">Applications by Source</h2>
-                    <div className="space-y-3">
-                        {sources?.sources?.map((source, idx) => (
-                            <div key={idx} className="border-b pb-3">
-                                <div className="flex justify-between items-center mb-1">
-                                    <span className="font-medium">{source.source}</span>
-                                    <span className="text-sm text-gray-600">{source.total_applications} apps</span>
-                                </div>
-                                <div className="grid grid-cols-3 gap-2 text-xs text-gray-600">
-                                    <div>Response: {source.response_rate}%</div>
-                                    <div>Interview: {source.interview_rate}%</div>
-                                    <div>Offer: {source.offer_rate}%</div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+            {/* Content Area */}
+            <div className="px-8 py-6">
+                {/* Dashboard Stats Cards */}
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+                    <StatCard
+                        title="Total Applications"
+                        value={dashboardStats?.total_applications || 0}
+                        icon="📊"
+                        color="blue"
+                    />
+                    <StatCard
+                        title="Response Rate"
+                        value={`${dashboardStats?.response_rate || 0}%`}
+                        icon="📧"
+                        color="green"
+                    />
+                    <StatCard
+                        title="Interview Rate"
+                        value={`${dashboardStats?.interview_rate || 0}%`}
+                        icon="💼"
+                        color="blue"
+                    />
+                    <StatCard
+                        title="Offer Rate"
+                        value={`${dashboardStats?.offer_rate || 0}%`}
+                        icon="🎉"
+                        color="purple"
+                    />
                 </div>
 
-                {/* Status Distribution */}
-                <div className="bg-white shadow rounded-lg p-6">
-                    <h2 className="text-lg font-medium text-gray-900 mb-4">Status Distribution</h2>
-                    <div className="space-y-4">
-                        {statusDist?.distribution?.map((item, idx) => (
-                            <div key={idx}>
-                                <div className="flex justify-between text-sm mb-1">
-                                    <span className="font-medium capitalize">{item.status.replace('_', ' ')}</span>
-                                    <span className="text-gray-600">{item.count} ({item.percentage}%)</span>
-                                </div>
-                                <div className="w-full bg-gray-200 rounded-full h-2">
-                                    <div
-                                        className={`h-2 rounded-full ${item.status === 'offer' ? 'bg-green-500' :
-                                                item.status === 'interview' ? 'bg-blue-500' :
-                                                    item.status === 'phone_screen' ? 'bg-yellow-500' :
-                                                        item.status === 'rejected' ? 'bg-red-500' :
-                                                            'bg-gray-500'
-                                            }`}
-                                        style={{ width: `${item.percentage}%` }}
-                                    ></div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-
-            {/* Weekly Trends */}
-            <div className="bg-white shadow rounded-lg p-6">
-                <h2 className="text-lg font-medium text-gray-900 mb-4">Weekly Trends</h2>
-                <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead>
-                            <tr>
-                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Week</th>
-                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Applications</th>
-                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Responses</th>
-                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Response Rate</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-200">
-                            {weeklyTrends?.weeks?.map((week, idx) => (
-                                <tr key={idx}>
-                                    <td className="px-4 py-2 text-sm text-gray-900">{week.week_start}</td>
-                                    <td className="px-4 py-2 text-sm text-gray-900">{week.applications}</td>
-                                    <td className="px-4 py-2 text-sm text-gray-900">{week.responses}</td>
-                                    <td className="px-4 py-2 text-sm">
-                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                            {week.response_rate}%
+                {/* Application Funnel */}
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+                    <h2 className="text-xl font-semibold text-gray-900 mb-6">Application Funnel</h2>
+                    {funnelData?.stages && funnelData.stages.length > 0 ? (
+                        <div className="space-y-4">
+                            {funnelData.stages.map((stage, index) => (
+                                <div key={index}>
+                                    <div className="flex justify-between items-center mb-2">
+                                        <span className="text-sm font-medium text-gray-700">{stage.stage}</span>
+                                        <span className="text-sm text-gray-600">
+                                            {stage.count} ({stage.percentage}%)
                                         </span>
-                                    </td>
-                                </tr>
+                                    </div>
+                                    <div className="w-full bg-gray-200 rounded-full h-3">
+                                        <div
+                                            className={`h-3 rounded-full transition-all ${index === 0 ? 'bg-blue-500' :
+                                                index === 1 ? 'bg-yellow-500' :
+                                                    index === 2 ? 'bg-indigo-500' :
+                                                        'bg-green-500'
+                                                }`}
+                                            style={{ width: `${stage.percentage}%` }}
+                                        />
+                                    </div>
+                                </div>
                             ))}
-                        </tbody>
-                    </table>
+                        </div>
+                    ) : (
+                        <EmptyState message="No funnel data available" />
+                    )}
+                </div>
+
+                {/* Two Column Layout */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Applications by Source - ENHANCED */}
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                        <h2 className="text-xl font-semibold text-gray-900 mb-6">Applications by Source</h2>
+                        {sourceData?.sources && sourceData.sources.length > 0 ? (
+                            <div className="space-y-6">
+                                {sourceData.sources.map((source, index) => (
+                                    <div key={index} className="border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <span className="text-lg font-bold text-gray-900">{source.source}</span>
+                                            <span className="text-sm font-semibold text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
+                                                {source.total_applications} {source.total_applications === 1 ? 'app' : 'apps'}
+                                            </span>
+                                        </div>
+                                        <div className="grid grid-cols-3 gap-4">
+                                            <div className="text-center">
+                                                <p className="text-3xl font-bold text-green-600 mb-1">{source.response_rate}%</p>
+                                                <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Response</p>
+                                            </div>
+                                            <div className="text-center border-l border-r border-gray-200">
+                                                <p className="text-3xl font-bold text-blue-600 mb-1">{source.interview_rate}%</p>
+                                                <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Interview</p>
+                                            </div>
+                                            <div className="text-center">
+                                                <p className="text-3xl font-bold text-purple-600 mb-1">{source.offer_rate}%</p>
+                                                <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Offer</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <EmptyState message="No source data available" />
+                        )}
+                    </div>
+
+                    {/* Status Distribution */}
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                        <h2 className="text-xl font-semibold text-gray-900 mb-6">Status Distribution</h2>
+                        {statusDistribution?.distribution && statusDistribution.distribution.length > 0 ? (
+                            <div className="space-y-5">
+                                {statusDistribution.distribution.map((item, index) => (
+                                    <div key={index}>
+                                        <div className="flex justify-between items-center mb-2">
+                                            <div className="flex items-center gap-3">
+                                                <span className={`w-4 h-4 rounded-full ${getStatusColor(item.status)}`} />
+                                                <span className="text-base font-semibold text-gray-800 capitalize">
+                                                    {item.status.replace('_', ' ')}
+                                                </span>
+                                            </div>
+                                            <span className="text-base font-bold text-gray-700">
+                                                {item.count} <span className="text-sm font-normal text-gray-500">({item.percentage}%)</span>
+                                            </span>
+                                        </div>
+                                        <div className="w-full bg-gray-200 rounded-full h-4">
+                                            <div
+                                                className={`h-4 rounded-full transition-all shadow-sm ${getStatusColor(item.status)}`}
+                                                style={{ width: `${item.percentage}%` }}
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <EmptyState message="No status data available" />
+                        )}
+                    </div>
                 </div>
             </div>
         </div>
     );
+}
+
+// Stat Card Component
+function StatCard({ title, value, icon, color }) {
+    const colorClasses = {
+        blue: 'bg-blue-50 text-blue-600',
+        green: 'bg-green-50 text-green-600',
+        purple: 'bg-purple-50 text-purple-600'
+    };
+
+    return (
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between">
+                <div>
+                    <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
+                    <p className="text-3xl font-bold text-gray-900">{value}</p>
+                </div>
+                <div className={`text-4xl ${colorClasses[color]} w-16 h-16 rounded-lg flex items-center justify-center`}>
+                    {icon}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// Empty State Component
+function EmptyState({ message }) {
+    return (
+        <div className="text-center py-8">
+            <div className="text-4xl mb-3">📊</div>
+            <p className="text-gray-500">{message}</p>
+            <p className="text-gray-400 text-sm mt-1">Add some applications to see analytics</p>
+        </div>
+    );
+}
+
+// Helper function for status colors
+function getStatusColor(status) {
+    const colors = {
+        applied: 'bg-gray-500',
+        phone_screen: 'bg-yellow-500',
+        interview: 'bg-blue-500',
+        offer: 'bg-green-500',
+        rejected: 'bg-red-500'
+    };
+    return colors[status] || 'bg-gray-400';
 }
 
 export default Analytics;
