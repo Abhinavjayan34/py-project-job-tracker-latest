@@ -84,10 +84,20 @@ function Companies() {
     if (companies.length === 0) {
         return (
             <div className="h-full bg-gray-50">
-                <div className="bg-white border-b border-gray-200 px-8 py-6">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Companies</h1>
-                    <p className="text-base text-gray-600">Track companies you've applied to</p>
+                {/* Gradient Header - Always Show */}
+                <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-8">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h1 className="text-4xl font-bold mb-2">Companies</h1>
+                            <p className="text-indigo-100 text-lg">
+                                Track companies you've applied to
+                            </p>
+                        </div>
+                        <div className="text-6xl">🏢</div>
+                    </div>
                 </div>
+
+                {/* Empty State Content */}
                 <div className="px-8 py-12">
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 text-center py-12">
                         <div className="text-6xl mb-4">🏢</div>
@@ -192,10 +202,10 @@ function Companies() {
                                                 <div className="flex items-center justify-between">
                                                     <span className="text-xs font-medium text-gray-700">{company.latest_application.role}</span>
                                                     <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${company.latest_application.status === 'offer' ? 'bg-green-100 text-green-800' :
-                                                            company.latest_application.status === 'interview' ? 'bg-blue-100 text-blue-800' :
-                                                                company.latest_application.status === 'phone_screen' ? 'bg-yellow-100 text-yellow-800' :
-                                                                    company.latest_application.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                                                                        'bg-gray-100 text-gray-800'
+                                                        company.latest_application.status === 'interview' ? 'bg-blue-100 text-blue-800' :
+                                                            company.latest_application.status === 'phone_screen' ? 'bg-yellow-100 text-yellow-800' :
+                                                                company.latest_application.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                                                                    'bg-gray-100 text-gray-800'
                                                         }`}>
                                                         {company.latest_application.status.replace('_', ' ')}
                                                     </span>
@@ -273,10 +283,10 @@ function Companies() {
                                                     <span
                                                         key={status}
                                                         className={`px-4 py-2 rounded-lg text-sm font-bold shadow-sm ${status === 'offer' ? 'bg-green-100 text-green-800 border-2 border-green-300' :
-                                                                status === 'interview' ? 'bg-blue-100 text-blue-800 border-2 border-blue-300' :
-                                                                    status === 'phone_screen' ? 'bg-yellow-100 text-yellow-800 border-2 border-yellow-300' :
-                                                                        status === 'rejected' ? 'bg-red-100 text-red-800 border-2 border-red-300' :
-                                                                            'bg-gray-100 text-gray-800 border-2 border-gray-300'
+                                                            status === 'interview' ? 'bg-blue-100 text-blue-800 border-2 border-blue-300' :
+                                                                status === 'phone_screen' ? 'bg-yellow-100 text-yellow-800 border-2 border-yellow-300' :
+                                                                    status === 'rejected' ? 'bg-red-100 text-red-800 border-2 border-red-300' :
+                                                                        'bg-gray-100 text-gray-800 border-2 border-gray-300'
                                                             }`}
                                                     >
                                                         {status.replace('_', ' ')}: {count}
@@ -304,10 +314,10 @@ function Companies() {
                                                     </p>
                                                 </div>
                                                 <span className={`px-4 py-2 rounded-lg text-sm font-bold shadow-sm ${role.status === 'offer' ? 'bg-green-100 text-green-800 border-2 border-green-300' :
-                                                        role.status === 'interview' ? 'bg-blue-100 text-blue-800 border-2 border-blue-300' :
-                                                            role.status === 'phone_screen' ? 'bg-yellow-100 text-yellow-800 border-2 border-yellow-300' :
-                                                                role.status === 'rejected' ? 'bg-red-100 text-red-800 border-2 border-red-300' :
-                                                                    'bg-gray-100 text-gray-800 border-2 border-gray-300'
+                                                    role.status === 'interview' ? 'bg-blue-100 text-blue-800 border-2 border-blue-300' :
+                                                        role.status === 'phone_screen' ? 'bg-yellow-100 text-yellow-800 border-2 border-yellow-300' :
+                                                            role.status === 'rejected' ? 'bg-red-100 text-red-800 border-2 border-red-300' :
+                                                                'bg-gray-100 text-gray-800 border-2 border-gray-300'
                                                     }`}>
                                                     {role.status.replace('_', ' ')}
                                                 </span>
