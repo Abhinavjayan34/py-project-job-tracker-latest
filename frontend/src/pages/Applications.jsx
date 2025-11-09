@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const API_URL = 'http://localhost:8000';
 
@@ -11,6 +11,9 @@ function Applications() {
     const [statusFilter, setStatusFilter] = useState('');
     const [sourceFilter, setSourceFilter] = useState('');
 
+    // Add useRef to prevent losing focus
+    const searchInputRef = useRef(null);
+
     const [formData, setFormData] = useState({
         company: '',
         role: '',
@@ -21,17 +24,22 @@ function Applications() {
         notes: ''
     });
 
+    // Debounce search to reduce API calls
     useEffect(() => {
-        fetchApplications();
+        const timeoutId = setTimeout(() => {
+            fetchApplications();
+        }, 300); // Wait 300ms after user stops typing
+
+        return () => clearTimeout(timeoutId);
     }, [searchTerm, statusFilter, sourceFilter]);
 
     const fetchApplications = async () => {
         try {
             setLoading(true);
             let url = `${API_URL}/applications?`;
-            if (searchTerm) url += `search=${searchTerm}&`;
+            if (searchTerm) url += `search=${encodeURIComponent(searchTerm)}&`;
             if (statusFilter) url += `status=${statusFilter}&`;
-            if (sourceFilter) url += `source=${sourceFilter}`;
+            if (sourceFilter) url += `source=${encodeURIComponent(sourceFilter)}`;
 
             const response = await fetch(url);
             const data = await response.json();
@@ -82,7 +90,6 @@ function Applications() {
         }
     };
 
-    if (loading) return <div className="text-center py-8">Loading...</div>;
     if (error) return <div className="text-red-600 text-center py-8">{error}</div>;
 
     return (
@@ -105,6 +112,7 @@ function Applications() {
             {/* Filters */}
             <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <input
+                    ref={searchInputRef}
                     type="text"
                     placeholder="Search by company or role..."
                     value={searchTerm}
@@ -224,50 +232,58 @@ function Applications() {
             <div className="mt-8 flex flex-col">
                 <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
                     <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
-                        <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-                            <table className="min-w-full divide-y divide-gray-300">
-                                <thead className="bg-gray-50">
-                                    <tr>
-                                        <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Company</th>
-                                        <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Role</th>
-                                        <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
-                                        <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Source</th>
-                                        <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Applied Date</th>
-                                        <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-200 bg-white">
-                                    {applications.map((app) => (
-                                        <tr key={app.id}>
-                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900">{app.company}</td>
-                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900">{app.role}</td>
-                                            <td className="whitespace-nowrap px-3 py-4 text-sm">
-                                                <span className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${app.status === 'offer' ? 'bg-green-100 text-green-800' :
-                                                        app.status === 'interview' ? 'bg-blue-100 text-blue-800' :
-                                                            app.status === 'phone_screen' ? 'bg-yellow-100 text-yellow-800' :
-                                                                app.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                                                                    'bg-gray-100 text-gray-800'
-                                                    }`}>
-                                                    {app.status}
-                                                </span>
-                                            </td>
-                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{app.source}</td>
-                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                {new Date(app.applied_date).toLocaleDateString()}
-                                            </td>
-                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                <button
-                                                    onClick={() => handleDelete(app.id)}
-                                                    className="text-red-600 hover:text-red-900"
-                                                >
-                                                    Delete
-                                                </button>
-                                            </td>
+                        {loading ? (
+                            <div className="text-center py-8 text-gray-500">Loading...</div>
+                        ) : applications.length === 0 ? (
+                            <div className="text-center py-8 text-gray-500">
+                                No applications found. {searchTerm && "Try adjusting your search."}
+                            </div>
+                        ) : (
+                            <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+                                <table className="min-w-full divide-y divide-gray-300">
+                                    <thead className="bg-gray-50">
+                                        <tr>
+                                            <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Company</th>
+                                            <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Role</th>
+                                            <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
+                                            <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Source</th>
+                                            <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Applied Date</th>
+                                            <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Actions</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-200 bg-white">
+                                        {applications.map((app) => (
+                                            <tr key={app.id}>
+                                                <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900">{app.company}</td>
+                                                <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900">{app.role}</td>
+                                                <td className="whitespace-nowrap px-3 py-4 text-sm">
+                                                    <span className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${app.status === 'offer' ? 'bg-green-100 text-green-800' :
+                                                            app.status === 'interview' ? 'bg-blue-100 text-blue-800' :
+                                                                app.status === 'phone_screen' ? 'bg-yellow-100 text-yellow-800' :
+                                                                    app.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                                                                        'bg-gray-100 text-gray-800'
+                                                        }`}>
+                                                        {app.status}
+                                                    </span>
+                                                </td>
+                                                <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{app.source}</td>
+                                                <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                                    {new Date(app.applied_date).toLocaleDateString()}
+                                                </td>
+                                                <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                                    <button
+                                                        onClick={() => handleDelete(app.id)}
+                                                        className="text-red-600 hover:text-red-900"
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
