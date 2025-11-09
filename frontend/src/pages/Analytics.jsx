@@ -61,10 +61,15 @@ function Analytics() {
     return (
         <div className="h-full bg-gray-50">
             {/* Header Section */}
-            <div className="bg-white border-b border-gray-200 px-8 py-6">
-                <div>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Analytics Dashboard</h1>
-                    <p className="text-base text-gray-600">Track your job search performance and insights</p>
+            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-8">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h1 className="text-4xl font-bold mb-2">Analytics Dashboard</h1>
+                        <p className="text-indigo-100 text-lg">
+                            Track your job search performance and insights
+                        </p>
+                    </div>
+                    <div className="text-6xl">📊</div>
                 </div>
             </div>
 

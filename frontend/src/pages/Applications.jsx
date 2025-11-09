@@ -92,19 +92,23 @@ function Applications() {
     return (
         <div className="h-full bg-gray-50">
             {/* Header Section with Better Styling */}
-            <div className="bg-white border-b border-gray-200 px-8 py-6">
+            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-8">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900 mb-2">Applications</h1>
-                        <p className="text-base text-gray-600">Track and manage all your job applications</p>
+                        <h1 className="text-4xl font-bold mb-2">Applications</h1>
+                        <p className="text-indigo-100 text-lg">
+                            Track and manage all your job applications
+                        </p>
                     </div>
-                    <button
-                        onClick={() => setShowForm(!showForm)}
-                        className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-sm hover:bg-indigo-700 transition-all hover:shadow-md"
-                    >
-                        <span className="text-xl">+</span>
-                        <span>Add Application</span>
-                    </button>
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={() => setShowForm(!showForm)}
+                            className="inline-flex items-center gap-2 px-6 py-3 bg-white text-indigo-600 font-semibold rounded-lg shadow-md hover:bg-indigo-50 transition-all"
+                        >
+                            <span className="text-xl">+</span>
+                            <span>Add Application</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -269,10 +273,10 @@ function Applications() {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{app.role}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm">
                                                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${app.status === 'offer' ? 'bg-green-100 text-green-800' :
-                                                        app.status === 'interview' ? 'bg-blue-100 text-blue-800' :
-                                                            app.status === 'phone_screen' ? 'bg-yellow-100 text-yellow-800' :
-                                                                app.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                                                                    'bg-gray-100 text-gray-800'
+                                                    app.status === 'interview' ? 'bg-blue-100 text-blue-800' :
+                                                        app.status === 'phone_screen' ? 'bg-yellow-100 text-yellow-800' :
+                                                            app.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                                                                'bg-gray-100 text-gray-800'
                                                     }`}>
                                                     {app.status.replace('_', ' ')}
                                                 </span>
