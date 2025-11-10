@@ -1,0 +1,33 @@
+{
+  "applications": [
+    {
+      "company": "GOOGLE",
+      "role": "SE",
+      "status": "applied",
+      "source": "LinkedIn",
+      "location": "",
+      "salary_range": "",
+      "notes": "",
+      "id": "1",
+      "applied_date": "2025-11-10T12:35:28.888713",
+      "last_updated": "2025-11-10T12:35:28.888765"
+    },
+    {
+      "company": "MICROSOFT",
+      "role": "SE",
+      "status": "applied",
+      "source": "Indeed",
+      "location": "",
+      "salary_range": "",
+      "notes": "",
+      "id": "2",
+      "applied_date": "2025-11-10T12:36:39.710371",
+      "last_updated": "2025-11-10T12:36:39.710385"
+    }
+  ],
+  "company_notes": {},
+  "company_contacts": {},
+  "company_status": {
+    "GOOGLE": "dream_company"
+  }
+}
